@@ -11,7 +11,8 @@ Vue.use(VueClipBoard)
 Vue.use(VueAxios, axios)
 
 // 设置 Axios 的默认基础 URL
-axios.defaults.baseURL = 'http://localhost:3000'; // 替换后端地址和端口
+axios.defaults.baseURL = 'http://localhost:5000'; // 替换后端地址和端口
+//axios.defaults.baseURL = 'http://localhost:4523'; // mock地址和端口
 
 
 Vue.config.productionTip = false

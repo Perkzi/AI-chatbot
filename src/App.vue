@@ -713,8 +713,8 @@ export default {
       oldConv: undefined,
       convTitletmp: "",
       source: undefined,
-      rsource: undefined,
-      tsource: undefined
+      rsource: undefined,  //接收回答的源
+      tsource: undefined  //接收标题的源
     };
   },
   methods: {
@@ -905,7 +905,8 @@ export default {
       rconv["speeches"].push("");
       that.refrechConversation()
 
-      var rsource = this.rsource = new EventSource(`/api/chat/repeat/${this.cid}`);
+      //var rsource = this.rsource = new EventSource(`/api/chat/repeat/${this.cid}`);
+      var rsource = this.rsource = new EventSource(`${this.axios.defaults.baseURL}/api/chat/repeat/${this.cid}`);
       rsource.addEventListener("open", function () {
         console.log("connect");
       });
@@ -986,7 +987,9 @@ export default {
       this.handleScrollBottom();
 
       var that = this;
-      var source = this.source = new EventSource(`/api/chat/${this.cid}?prompt=${encodeURIComponent(chatMsg)}`);
+      //mock测试
+      //var source = this.source = new EventSource(`${this.axios.defaults.baseURL}/m2/5470893-5146407-default/234419505/?prompt=${encodeURIComponent(chatMsg)}`);
+      var source = this.source = new EventSource(`${this.axios.defaults.baseURL}/api/chat/${this.cid}?prompt=${encodeURIComponent(chatMsg)}`);
 
       source.addEventListener("open", function () {
         console.log("connect");
@@ -1040,7 +1043,7 @@ export default {
     },
     generateConvTitle(conv) {
       var that = this;
-      var tsource = this.tsource = new EventSource(`/api/chat/title/${this.cid}`);
+      var tsource = this.tsource = new EventSource(`${this.axios.defaults.baseURL}/api/chat/title/${this.cid}`);
 
       //如果服务器响应报文中没有指明事件，默认触发message事件
       conv.title = ""
@@ -1068,7 +1071,7 @@ export default {
       if (this.conversation.length == 0) {
         return
       }
-
+      //console.log("new chat");
       this.chatTitle = "New chat";
       document.title = "New chat";
       var conversations = this.conversations;
@@ -1083,12 +1086,16 @@ export default {
     },
     loadId() {
       var that = this;
+      console.log("loadid");
+      
+      //this.axios.post(`/m2/5470893-5146407-default/234393158`, {})  //mock test
       this.axios.post(`/api/generate/id`, {})
         .then((result) => {
           console.log(result);
           var resp = result.data;
 
           that.cid = resp.data;
+          console.log("cid:"+that.cid);
           this.conversation = []
         })
         .catch((err) => {
@@ -1099,14 +1106,16 @@ export default {
       this.conversations = JSON.parse(convs);
     },
     saveConversations() {
-      var conversations = JSON.parse(JSON.stringify(this.conversations));
+      var conversations = JSON.parse(JSON.stringify(this.conversations));//对象
+      // 保存到  localStorage  时不需要这些属性，因此需要将其删除
+      // idx是索引0，1，2不是dict
       for (let idx in conversations) {
         var conv = conversations[idx];
         delete conv.editable;
         delete conv.selected;
         delete conv.delete;
       }
-      let convs = JSON.stringify(conversations);
+      let convs = JSON.stringify(conversations); // 转换为 JSON 字符串
       localStorage.setItem("conversations", convs);
     },
     clearConversations() {
@@ -1128,6 +1137,7 @@ export default {
         return;
       }
 
+      //this.axios.get(`/m2/5470893-5146407-default/234411102/${conv.id}`)  // mock测试
       this.axios.get(`/api/conv/${conv.id}`)
         .then((result) => {
           console.log(result);
