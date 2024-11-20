@@ -820,12 +820,17 @@ export default {
       localStorage.setItem("theme", theme)
     },
     initConvs(convs) {
+      //console.log(convs)
       for (let i = 0; i < convs.length; i++) {
         var conv = convs[i];
         if (conv.speaker == "human") {
+          //conv["idx"] = 0;
+          
           continue
         }
         conv["idx"] = conv["speeches"].length - 1;
+        conv["loading"] = false;
+        conv["suitable"] = [0];
       }
       return convs;
     },
@@ -989,7 +994,7 @@ export default {
       var that = this;
       //mock测试
       //var source = this.source = new EventSource(`${this.axios.defaults.baseURL}/m2/5470893-5146407-default/234419505/?prompt=${encodeURIComponent(chatMsg)}`);
-      var source = this.source = new EventSource(`${this.axios.defaults.baseURL}/api/chat/${this.cid}?prompt=${encodeURIComponent(chatMsg)}`);
+      var source = this.source = new EventSource(`${this.axios.defaults.baseURL}/api_1_0/message/getChatMessage/${this.cid}?Content=${encodeURIComponent(chatMsg)}`);
 
       source.addEventListener("open", function () {
         console.log("connect");
@@ -1043,7 +1048,7 @@ export default {
     },
     generateConvTitle(conv) {
       var that = this;
-      var tsource = this.tsource = new EventSource(`${this.axios.defaults.baseURL}/api/chat/title/${this.cid}`);
+      var tsource = this.tsource = new EventSource(`${this.axios.defaults.baseURL}/api_1_0/conversation/get_title/${this.cid}`);
 
       //如果服务器响应报文中没有指明事件，默认触发message事件
       conv.title = ""
@@ -1089,7 +1094,7 @@ export default {
       console.log("loadid");
       
       //this.axios.post(`/m2/5470893-5146407-default/234393158`, {})  //mock test
-      this.axios.post(`/api/generate/id`, {})
+      this.axios.post(`/api_1_0/conversation/add_conversation`, {})
         .then((result) => {
           console.log(result);
           var resp = result.data;
@@ -1138,7 +1143,7 @@ export default {
       }
 
       //this.axios.get(`/m2/5470893-5146407-default/234411102/${conv.id}`)  // mock测试
-      this.axios.get(`/api/conv/${conv.id}`)
+      this.axios.get(`/api_1_0/message/getHistoryMessage/${conv.id}`)
         .then((result) => {
           console.log(result);
           var resp = result.data;
@@ -1146,6 +1151,10 @@ export default {
 
           that.cid = conv.id;
           that.conversation = that.initConvs(content.convs)
+          console.log("124")
+          console.log(this.conversation)
+          
+          that.refrechConversation();
           setTimeout(() => {
             that.isScrollAndNotBottom();
           }, 300)
