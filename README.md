@@ -21,3 +21,6 @@ npm run build
 #### 使用代码（直接使用）
 dist目录就是打包好的代码，可以直接放在nginx的静态文件下。
 
+
+#### Reference
+[chatai-vue]https://gitee.com/MIEAPP/chatai-vue
